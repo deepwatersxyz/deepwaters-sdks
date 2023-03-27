@@ -29,18 +29,19 @@ func (v *AuthenticationHeaderValues) ToHeadersMap() map[string]string {
 	return m
 }
 
-func GetAuthenticationHeaders(apiKey string, apiSecret string, httpMethod string, requestURI string, nonceStr *string, marshalledPayload *string) (map[string]string, error) {
+func GetAuthenticationHeaders(apiKey string, apiSecret string, httpMethod string, requestURI string, nonce *uint64, marshalledPayload *string) (map[string]string, error) {
 
 	nowStr := NowStr()
 
 	headerValues := AuthenticationHeaderValues{ApiKey: apiKey,
-		TimestampMicrosStr: nowStr,
-		NonceStr:           nonceStr}
+		TimestampMicrosStr: nowStr}
 
 	toHashAndSign := httpMethod + strings.ToLower(requestURI) + nowStr
 
-	if nonceStr != nil {
-		toHashAndSign += *nonceStr
+	if nonce != nil {
+		nonceStr := fmt.Sprintf("%d", *nonce)
+		headerValues.NonceStr = &nonceStr
+		toHashAndSign += nonceStr
 	}
 
 	if marshalledPayload != nil {

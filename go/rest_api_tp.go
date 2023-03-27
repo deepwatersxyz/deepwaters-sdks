@@ -81,13 +81,11 @@ func SubmitAMarketOrder(nonce uint64) (*SubmitOrderSuccessResponse, error) {
 	extension := "orders"
 	requestURI, url := GetRequestURIAndURLFromExtension(extension)
 
-	nonceStr := fmt.Sprintf("%d", nonce)
-
 	payload := SubmitOrderRequest{BaseAssetID: baseAssetID, QuoteAssetID: quoteAssetID, Type: "MARKET", Side: "BUY", QuantityStr: "1.000000"}
 	marshalledPayloadBytes, _ := json.Marshal(payload)
 	marshalledPayload := string(marshalledPayloadBytes)
 
-	headers, err := GetAuthenticationHeaders(apiKey, apiSecret, "POST", requestURI, &nonceStr, &marshalledPayload)
+	headers, err := GetAuthenticationHeaders(apiKey, apiSecret, "POST", requestURI, &nonce, &marshalledPayload)
 	if err != nil {
 		return nil, err
 	}
