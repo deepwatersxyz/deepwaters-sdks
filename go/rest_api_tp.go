@@ -126,7 +126,7 @@ func main() {
 		if err != nil {
 			fmt.Printf("%s", err)
 		} else {
-			fmt.Printf("\n%+v", *successResponse)
+			fmt.Printf("\n%+v", *successResponse.Result)
 		}
 	}
 }

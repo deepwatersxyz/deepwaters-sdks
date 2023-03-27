@@ -8,18 +8,18 @@ type ErrorResponse struct {
 }
 
 type GetAPIKeySessionSuccessResponse struct {
-	Result  GetAPIKeySessionSuccessBody
 	Success bool
+	Result  *GetAPIKeySessionSuccessBody
 }
 
 type GetAPIKeySessionSuccessBody struct {
-	APIKey           string
-	CreatedAtMicros  uint64
-	ExpiresAtMicros  uint64
-	Label            string
-	ModifiedAtMicros uint64
-	Nonce            uint64
-	Status           string
+	APIKey           string  `json:"APIKey"`
+	Nonce            uint64  `json:"nonce"`
+	Label            *string `json:"label"`
+	Status           string  `json:"status"`
+	CreatedAtMicros  uint64  `json:"createdAtMicros"`
+	ModifiedAtMicros uint64  `json:"modifiedAtMicros"`
+	ExpiresAtMicros  *uint64 `json:"expiresAtMicros"`
 }
 
 type SubmitOrderRequest struct {
@@ -36,8 +36,8 @@ type SubmitOrderRequest struct {
 }
 
 type SubmitOrderSuccessResponse struct {
-	Result  SubmitOrderSuccessBody
 	Success bool
+	Result  *SubmitOrderSuccessBody
 }
 
 type SubmitOrderSuccessBody struct {
