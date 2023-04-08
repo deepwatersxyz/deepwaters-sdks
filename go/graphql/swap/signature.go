@@ -29,7 +29,7 @@ func getSubmitOrderSignature(customerPrivKey string, nonce uint64, customerObjec
 			Price:            &price,
 			DurationType:     OrderDurationTypeGoodTillCancel,
 		},
-		Nonce:            util.BigInt{Int: big.NewInt(0).SetUint64(nonce)},
+		Nonce: util.BigInt{Int: big.NewInt(0).SetUint64(nonce)},
 	}
 
 	signature, err := eip712.Sign(request, privKey)

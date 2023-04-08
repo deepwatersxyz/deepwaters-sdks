@@ -45,7 +45,7 @@ type OrderBody struct {
 	Price            *string
 	DurationType     OrderDurationType
 	ExpiresAt        *util.Timestamp
-	ExpiresIn *string
+	ExpiresIn        *string
 }
 
 type SubmitOrderRequest struct {

@@ -24,7 +24,7 @@ func (wsc *websocketClient) setupL3() error {
 	wsc.subscriptionQuery = fmt.Sprintf(`subscription {
 			orders%s %s
 		}`, variables, swap.OrderResponseFields)
-	
+
 	wsc.l3OutputChannel = make(chan swap.Order, 1024)
 	return nil
 }

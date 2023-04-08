@@ -28,9 +28,9 @@ func main() {
 	if err := gatherer.SetTradesWebsocketClient(nil, nil, nil); err != nil {
 		panic(err)
 	}
-	go func() {
+	go func() { // just for demonstration
 		time.Sleep(10 * time.Second)
-		gatherer.RestartWebsocketClient("L3") // just for demonstration
+		gatherer.RestartWebsocketClient("L3")
 	}()
 	gatherer.Run()
 }

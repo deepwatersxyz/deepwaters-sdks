@@ -1,10 +1,9 @@
 package swap
 
 import (
-	"encoding/json"
 	"deepwaters/go-examples/util"
+	"encoding/json"
 )
-
 
 type OrderBookLevel struct {
 	Depth    int    `json:"depth"`
@@ -22,7 +21,7 @@ type OrderBookLevelUpdate struct {
 }
 
 type L2FeedFrame struct {
-	Data L2FeedFrameInner
+	Data       L2FeedFrameInner
 	Errors     json.RawMessage
 	Extensions map[string]interface{}
 }
