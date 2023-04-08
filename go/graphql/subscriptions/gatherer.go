@@ -175,8 +175,7 @@ func (g *Gatherer) Run() {
 	}
 
 	<-interrupt
-	g.lg.Debug("interrupt")
-	g.lg.Debug("shutting down ...")
+	g.lg.Debug("interrupt. shutting down ...")
 	g.lg.Trace("sending and receiving done signals ...")
 	stopper.SendHaltAndReceiveDoneSignals()
 	g.lg.Info("shut down gracefully")

@@ -11,11 +11,6 @@ import (
 )
 
 const (
-	// Time allowed to write, read a message to the server
-	subscribeWriteWait = 15 * time.Second
-	closeWriteWait     = 1 * time.Second
-	defaultReadWait    = 7 * time.Second
-
 	connectionInitMsg = "connection_init" // Client -> Server
 	startMsg          = "start"           // Client -> Server
 	connectionAckMsg  = "connection_ack"  // Server -> Client
@@ -89,6 +84,7 @@ func (wsc *websocketClient) subscribe() error {
 	return nil
 }
 
+// gets goroutines
 func (wsc *websocketClient) read(iteration int) {
 	wsc.lg.Tracef("reading")
 
@@ -121,7 +117,7 @@ func (wsc *websocketClient) read(iteration int) {
 
 func (wsc *websocketClient) finalizeConnection() {
 
-	wsc.connection.SetWriteDeadline(time.Now().Add(closeWriteWait))
+	wsc.connection.SetWriteDeadline(time.Now().Add(1 * time.Second))
 	wsc.lg.Debug("writing close message ...")
 	err := wsc.connection.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
 	if err == nil {

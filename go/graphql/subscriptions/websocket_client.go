@@ -151,7 +151,6 @@ func (wsc *websocketClient) connectAndMonitor(haltC <-chan struct{}, doneC chan<
 	for running := true; running; {
 		select {
 		case <-haltC: // if we get here, wsc has been marked interrupted
-			wsc.lg.Debug("received interrupt")
 			haveReadFromHaltC = true
 			running = false
 		case wErr := <-wsc.readErrorChannel:
