@@ -1,6 +1,7 @@
 package subscriptions
 
 import (
+	"encoding/json"
 	"os"
 	"os/signal"
 
@@ -92,7 +93,12 @@ func (g *Gatherer) handleL3Updates(haltC <-chan struct{}, doneC chan<- struct{})
 		case <-haltC:
 			running = false
 		case order := <-g.l3WebsocketClient.l3OutputChannel:
-			g.lg.Debugf("order: %+v ", order)
+			orderBytes, err := json.Marshal(order)
+			if err != nil {
+				g.lg.Errorf("error: %s", err)
+			} else {
+				g.lg.Debugf("order: %s", orderBytes)
+			}
 		}
 	}
 	close(doneC)
@@ -104,7 +110,12 @@ func (g *Gatherer) handleL2Updates(haltC <-chan struct{}, doneC chan<- struct{})
 		case <-haltC:
 			running = false
 		case orderBookLevelUpdate := <-g.l2WebsocketClient.l2OutputChannel:
-			g.lg.Debugf("order book level update: %+v ", orderBookLevelUpdate)
+			updateBytes, err := json.Marshal(orderBookLevelUpdate)
+			if err != nil {
+				g.lg.Errorf("error: %s", err)
+			} else {
+				g.lg.Debugf("level update: %s", updateBytes)
+			}
 		}
 	}
 	close(doneC)
@@ -116,7 +127,12 @@ func (g *Gatherer) handleTradeUpdates(haltC <-chan struct{}, doneC chan<- struct
 		case <-haltC:
 			running = false
 		case trade := <-g.tradesWebsocketClient.tradesOutputChannel:
-			g.lg.Debugf("trade: %+v ", trade)
+			tradeBytes, err := json.Marshal(trade)
+			if err != nil {
+				g.lg.Errorf("error: %s", err)
+			} else {
+				g.lg.Debugf("trade: %s", tradeBytes)
+			}
 		}
 	}
 	close(doneC)
@@ -159,8 +175,9 @@ func (g *Gatherer) Run() {
 	}
 
 	<-interrupt
-	g.lg.Debug("interrupt ")
-	g.lg.Debug("shutting down ... ")
+	g.lg.Debug("interrupt")
+	g.lg.Debug("shutting down ...")
+	g.lg.Trace("sending and receiving done signals ...")
 	stopper.SendHaltAndReceiveDoneSignals()
-	g.lg.Info("shut down gracefully ")
+	g.lg.Info("shut down gracefully")
 }

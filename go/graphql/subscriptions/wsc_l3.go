@@ -33,13 +33,13 @@ func (wsc *websocketClient) parseAndOutputL3(wMessage wrappedReceivedMessage) {
 	var d swap.L3FeedFrame
 
 	if err := json.Unmarshal(wMessage.message, &d); err != nil {
-		err = fmt.Errorf("error parsing output: %w ", err)
+		err = fmt.Errorf("error parsing output: %w", err)
 		wsc.readErrorChannel <- wrappedError{iteration: wMessage.iteration, err: err}
 		return
 	}
 
 	if d.Errors != nil {
-		err := fmt.Errorf("error in response: %#v ", d.Errors)
+		err := fmt.Errorf("error in response: %#v", d.Errors)
 		wsc.readErrorChannel <- wrappedError{iteration: wMessage.iteration, err: err}
 		return
 	}

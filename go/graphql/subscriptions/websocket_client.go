@@ -98,11 +98,11 @@ func NewWebsocketClient(lg *log.Entry, envName, apiRoot, feedName string, subscr
 			return nil, err
 		}
 	default:
-		return nil, fmt.Errorf("unsupported feed %s ", feedName)
+		return nil, fmt.Errorf("unsupported feed %s", feedName)
 	}
-	wsc.lg.Infof("%s", wsc.subscriptionQuery)
+	wsc.lg.Tracef("%s", wsc.subscriptionQuery)
 
-	wsc.lg.Info("created ")
+	wsc.lg.Info("created")
 	return &wsc, nil
 }
 
@@ -132,10 +132,14 @@ func (wsc *websocketClient) processMessages(haltC <-chan struct{}, doneC chan<- 
 
 // gets a goroutine
 func (wsc *websocketClient) connectAndMonitor(haltC <-chan struct{}, doneC chan<- struct{}) {
-	wsc.lg.Info("(re)started ")
+	if wsc.iteration == 0 {
+		wsc.lg.Info("started")
+	} else {
+		wsc.lg.Info("restarted")
+	}
 
 	if err := wsc.subscribe(); err != nil { // sets wsc.connection
-		wsc.lg.Errorf("dial/subscribe error, retrying: %w ", err)
+		wsc.lg.Errorf("dial/subscribe error, retrying: %w", err)
 		time.Sleep(1 * time.Second)
 		wsc.connectAndMonitor(haltC, doneC)
 		return
@@ -147,7 +151,7 @@ func (wsc *websocketClient) connectAndMonitor(haltC <-chan struct{}, doneC chan<
 	for running := true; running; {
 		select {
 		case <-haltC: // if we get here, wsc has been marked interrupted
-			wsc.lg.Debug("received interrupt ")
+			wsc.lg.Debug("received interrupt")
 			haveReadFromHaltC = true
 			running = false
 		case wErr := <-wsc.readErrorChannel:
@@ -157,7 +161,7 @@ func (wsc *websocketClient) connectAndMonitor(haltC <-chan struct{}, doneC chan<
 			wsc.lg.Errorf("%w ", wErr.err)
 			running = false
 		case <-wsc.restartRequiredChannel:
-			wsc.lg.Warn("received restart instruction ")
+			wsc.lg.Debug("received restart instruction")
 			running = false
 		}
 	}
@@ -175,7 +179,7 @@ func (wsc *websocketClient) finalizeSession(haveReadFromHaltC bool, haltC <-chan
 		<-haltC // needs to be drained
 		close(doneC)
 	} else {
-		wsc.lg.WithFields(wsc.logFields).Info("restarting ... ")
+		wsc.lg.WithFields(wsc.logFields).Info("restarting ...")
 		wsc.iteration += 1
 		wsc.connectAndMonitor(haltC, doneC)
 	}
@@ -188,10 +192,10 @@ func (wsc *websocketClient) Run(haltC <-chan struct{}, doneC chan<- struct{}) {
 	go wsc.connectAndMonitor(stopper.NewHaltC(), stopper.NewDoneC())
 	<-haltC
 
-	wsc.lg.Debug("shutting down ... ")
+	wsc.lg.Debug("shutting down ...")
 	wsc.markInterrupted()
-	wsc.lg.Trace("sending and receiving done signals ... ")
+	wsc.lg.Trace("sending and receiving done signals ...")
 	stopper.SendHaltAndReceiveDoneSignals()
-	wsc.lg.Info("shut down gracefully ")
+	wsc.lg.Info("shut down gracefully")
 	close(doneC)
 }

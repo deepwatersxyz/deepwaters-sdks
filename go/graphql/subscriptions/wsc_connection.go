@@ -122,13 +122,13 @@ func (wsc *websocketClient) read(iteration int) {
 func (wsc *websocketClient) finalizeConnection() {
 
 	wsc.connection.SetWriteDeadline(time.Now().Add(closeWriteWait))
-	wsc.lg.Debug("writing close message ... ")
+	wsc.lg.Debug("writing close message ...")
 	err := wsc.connection.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
 	if err == nil {
-		wsc.lg.Debug("sent close message ")
+		wsc.lg.Debug("sent close message")
 
 	} else if !wsc.checkInterrupted() {
-		wsc.lg.Warnf("write close message error: %w ", err)
+		wsc.lg.Warnf("write close message error: %w", err)
 	}
 
 	_ = wsc.connection.Close()

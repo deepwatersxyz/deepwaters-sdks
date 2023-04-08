@@ -4,6 +4,7 @@ import (
 	"deepwaters/go-examples/graphql/subscriptions"
 	"deepwaters/go-examples/util"
 	"os"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -27,5 +28,9 @@ func main() {
 	if err := gatherer.SetTradesWebsocketClient(nil, nil, nil); err != nil {
 		panic(err)
 	}
+	go func() {
+		time.Sleep(10 * time.Second)
+		gatherer.RestartWebsocketClient("L3") // just for demonstration
+	}()
 	gatherer.Run()
 }
