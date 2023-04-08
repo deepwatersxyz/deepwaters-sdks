@@ -4,8 +4,8 @@ from secp256k1_utils import get_signature_hex_str
 host_url = 'https://testnet.api.deepwaters.xyz'
 api_route = '/rest/v1/'
 # request these in the webapp
-api_key = None
-api_secret = None
+api_key = '0x9855be3b4907301a7aecb1c45e202ede14841e13'
+api_secret = '0x586f9d843f7c5c0c47ebb7a0d115c734a49aa862cb5eeb2e44056d7f5dc147c9'
 nonce_d = {'nonce': None}
 base_asset_id = 'WBTC.GOERLI.5.TESTNET.PROD'
 quote_asset_id = 'USDC.GOERLI.5.TESTNET.PROD'
@@ -56,6 +56,36 @@ def sync_nonce(api_key, api_secret, nonce_d):
     nonce_d['nonce'] = response['result']['nonce']
 
 sync_nonce(api_key, api_secret, nonce_d)
+
+# per-user
+# requires authentication, without nonce
+# GET /customer
+
+extension = 'customer'
+request_uri, url = get_request_uri_and_url_from_extension(extension)
+
+headers = get_authentication_headers(api_key, api_secret, 'GET', request_uri)
+
+print('GET %s ... ' % url)
+r = requests.get(url, headers=headers)
+response = r.json()
+print(response)
+print()
+
+# per API key
+# requires authentication, without nonce
+# GET /customer/api-key-status
+
+extension = 'customer/api-key-status'
+request_uri, url = get_request_uri_and_url_from_extension(extension)
+
+headers = get_authentication_headers(api_key, api_secret, 'GET', request_uri)
+
+print('GET %s ... ' % url)
+r = requests.get(url, headers=headers)
+response = r.json()
+print(response)
+print()
 
 # GET /pairs
 
@@ -166,36 +196,6 @@ print()
 # GET /trades?pair={pair}&type={type}&created-at-or-after-micros={created_at_or_after_micros}&created-before-micros={created_before_micros}&skip={skip}&limit={limit}
 
 extension = f'trades?pair={pair_name}&type=FILL&created-at-or-after-micros={created_at_or_after_micros}&created-before-micros={created_before_micros}&skip=0&limit=1'
-request_uri, url = get_request_uri_and_url_from_extension(extension)
-
-headers = get_authentication_headers(api_key, api_secret, 'GET', request_uri)
-
-print('GET %s ... ' % url)
-r = requests.get(url, headers=headers)
-response = r.json()
-print(response)
-print()
-
-# per-user
-# requires authentication, without nonce
-# GET /customer
-
-extension = 'customer'
-request_uri, url = get_request_uri_and_url_from_extension(extension)
-
-headers = get_authentication_headers(api_key, api_secret, 'GET', request_uri)
-
-print('GET %s ... ' % url)
-r = requests.get(url, headers=headers)
-response = r.json()
-print(response)
-print()
-
-# per API key
-# requires authentication, without nonce
-# GET /customer/api-key-status
-
-extension = 'customer/api-key-status'
 request_uri, url = get_request_uri_and_url_from_extension(extension)
 
 headers = get_authentication_headers(api_key, api_secret, 'GET', request_uri)

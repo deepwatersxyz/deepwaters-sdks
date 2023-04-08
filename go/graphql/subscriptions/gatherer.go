@@ -1,0 +1,166 @@
+package subscriptions
+
+import (
+	"os"
+	"os/signal"
+
+	log "github.com/sirupsen/logrus"
+
+	"deepwaters/go-examples/util"
+)
+
+type Gatherer struct {
+	lg *log.Entry
+
+	envName string
+	apiRoot string
+
+	l3WebsocketClient     *websocketClient
+	l2WebsocketClient     *websocketClient
+	tradesWebsocketClient *websocketClient
+}
+
+func NewGatherer(lg *log.Logger, envName, apiRoot string) *Gatherer {
+
+	lge := lg.WithFields(log.Fields{"sourceType": "gatherer", "envName": envName})
+	g := Gatherer{lg: lge,
+		envName: envName,
+		apiRoot: apiRoot}
+
+	return &g
+}
+
+func (g *Gatherer) SetL3WebsocketClient(baseAssetID, quoteAssetID, customerAddress *string) error {
+
+	variables := make(map[string]interface{})
+	if baseAssetID != nil {
+		variables["baseAssetID"] = *baseAssetID
+	}
+	if quoteAssetID != nil {
+		variables["quoteAssetID"] = *quoteAssetID
+	}
+	if customerAddress != nil {
+		variables["customerAddress"] = *customerAddress
+	}
+
+	l3WebsocketClient, err := NewWebsocketClient(g.lg, g.envName, g.apiRoot, "L3", variables)
+	if err != nil {
+		return err
+	}
+	g.l3WebsocketClient = l3WebsocketClient
+	return nil
+}
+
+func (g *Gatherer) SetL2WebsocketClient(baseAssetID, quoteAssetID string) error {
+
+	variables := make(map[string]interface{})
+	variables["baseAssetID"] = baseAssetID
+	variables["quoteAssetID"] = quoteAssetID
+
+	l2WebsocketClient, err := NewWebsocketClient(g.lg, g.envName, g.apiRoot, "L2", variables)
+	if err != nil {
+		return err
+	}
+	g.l2WebsocketClient = l2WebsocketClient
+	return nil
+}
+
+func (g *Gatherer) SetTradesWebsocketClient(baseAssetID, quoteAssetID, customerAddress *string) error {
+
+	variables := make(map[string]interface{})
+	if baseAssetID != nil {
+		variables["baseAssetID"] = *baseAssetID
+	}
+	if quoteAssetID != nil {
+		variables["quoteAssetID"] = *quoteAssetID
+	}
+	if customerAddress != nil {
+		variables["customerAddress"] = *customerAddress
+	}
+
+	tradesWebsocketClient, err := NewWebsocketClient(g.lg, g.envName, g.apiRoot, "trades", variables)
+	if err != nil {
+		return err
+	}
+	g.tradesWebsocketClient = tradesWebsocketClient
+	return nil
+}
+
+func (g *Gatherer) handleL3Updates(haltC <-chan struct{}, doneC chan<- struct{}) {
+	for running := true; running; {
+		select {
+		case <-haltC:
+			running = false
+		case order := <-g.l3WebsocketClient.l3OutputChannel:
+			g.lg.Debugf("order: %+v ", order)
+		}
+	}
+	close(doneC)
+}
+
+func (g *Gatherer) handleL2Updates(haltC <-chan struct{}, doneC chan<- struct{}) {
+	for running := true; running; {
+		select {
+		case <-haltC:
+			running = false
+		case orderBookLevelUpdate := <-g.l2WebsocketClient.l2OutputChannel:
+			g.lg.Debugf("order book level update: %+v ", orderBookLevelUpdate)
+		}
+	}
+	close(doneC)
+}
+
+func (g *Gatherer) handleTradeUpdates(haltC <-chan struct{}, doneC chan<- struct{}) {
+	for running := true; running; {
+		select {
+		case <-haltC:
+			running = false
+		case trade := <-g.tradesWebsocketClient.tradesOutputChannel:
+			g.lg.Debugf("trade: %+v ", trade)
+		}
+	}
+	close(doneC)
+}
+
+func (g *Gatherer) RestartWebsocketClient(feedName string) {
+	if feedName == "L3" && g.l3WebsocketClient != nil {
+		g.l3WebsocketClient.restartRequiredChannel <- struct{}{}
+	}
+
+	if feedName == "L2" && g.l2WebsocketClient != nil {
+		g.l2WebsocketClient.restartRequiredChannel <- struct{}{}
+	}
+
+	if feedName == "trades" && g.tradesWebsocketClient != nil {
+		g.tradesWebsocketClient.restartRequiredChannel <- struct{}{}
+	}
+}
+
+func (g *Gatherer) Run() {
+
+	interrupt := make(chan os.Signal, 1)
+	signal.Notify(interrupt, os.Interrupt)
+
+	stopper := util.CloseChannelsWrapper{}
+
+	if g.l3WebsocketClient != nil {
+		go g.handleL3Updates(stopper.NewHaltC(), stopper.NewDoneC())
+		go g.l3WebsocketClient.Run(stopper.NewHaltC(), stopper.NewDoneC())
+	}
+
+	if g.l2WebsocketClient != nil {
+		go g.handleL2Updates(stopper.NewHaltC(), stopper.NewDoneC())
+		go g.l2WebsocketClient.Run(stopper.NewHaltC(), stopper.NewDoneC())
+	}
+
+	if g.tradesWebsocketClient != nil {
+		go g.handleTradeUpdates(stopper.NewHaltC(), stopper.NewDoneC())
+		go g.tradesWebsocketClient.Run(stopper.NewHaltC(), stopper.NewDoneC())
+	}
+
+	<-interrupt
+	g.lg.Debug("interrupt ")
+	g.lg.Debug("shutting down ... ")
+	stopper.SendHaltAndReceiveDoneSignals()
+	g.lg.Info("shut down gracefully ")
+}
