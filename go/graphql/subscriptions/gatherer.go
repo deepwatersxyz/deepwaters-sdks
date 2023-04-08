@@ -31,7 +31,7 @@ func NewGatherer(lg *log.Logger, envName, apiRoot string) *Gatherer {
 	return &g
 }
 
-func (g *Gatherer) SetL3WebsocketClient(baseAssetID, quoteAssetID, customerAddress *string) error {
+func (g *Gatherer) SetL3WebsocketClient(baseAssetID, quoteAssetID, customerAddress *string) error { // more arguments are possible - see swap.OrderFilter
 
 	variables := make(map[string]interface{})
 	if baseAssetID != nil {
@@ -66,7 +66,7 @@ func (g *Gatherer) SetL2WebsocketClient(baseAssetID, quoteAssetID string) error 
 	return nil
 }
 
-func (g *Gatherer) SetTradesWebsocketClient(baseAssetID, quoteAssetID, customerAddress *string) error {
+func (g *Gatherer) SetTradesWebsocketClient(baseAssetID, quoteAssetID, customerAddress *string) error { // more arguments are possible - see swap.TradeFilter
 
 	variables := make(map[string]interface{})
 	if baseAssetID != nil {

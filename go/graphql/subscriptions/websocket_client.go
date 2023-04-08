@@ -1,6 +1,7 @@
 package subscriptions
 
 import (
+	"encoding/json"
 	"fmt"
 	"sync"
 	"time"
@@ -19,7 +20,7 @@ type wrappedError struct {
 
 type wrappedReceivedMessage struct {
 	iteration int
-	message   []byte
+	message   json.RawMessage
 }
 
 type websocketClient struct {
