@@ -1,41 +1,9 @@
 package swap
 
 import (
-	"encoding/json"
 	"fmt"
 	"time"
 )
-
-type gqlResponse map[string]interface{}
-
-func newResponse() gqlResponse {
-	return make(map[string]interface{})
-}
-
-func (r gqlResponse) clear() {
-	r = make(map[string]interface{})
-}
-
-func (r gqlResponse) get(keys ...interface{}) interface{} {
-	var i interface{} = map[string]interface{}(r)
-	for _, key := range keys {
-
-		switch t := key.(type) {
-		case int:
-			i = i.([]interface{})[key.(int)]
-		case string:
-			i = i.(map[string]interface{})[key.(string)]
-		default:
-			panic(fmt.Sprintf("unsupport parameter type in get: %+v", t))
-		}
-	}
-	return i
-}
-
-func (r gqlResponse) toString() string {
-	bytes, _ := json.MarshalIndent(r, "", "  ")
-	return string(bytes)
-}
 
 func CreateSignedSubmitLimitOrderQuery(customerPrivKey string, nonce uint64, customerObjectID *string, side OrderSide,
 	quantity, baseAssetID, quoteAssetID, price string, durationType *OrderDurationType, expiresAt *time.Time, expiresIn *string) (string, string) {

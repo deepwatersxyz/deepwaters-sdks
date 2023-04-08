@@ -7,7 +7,6 @@ import (
 	"deepwaters/go-examples/util"
 
 	"fmt"
-	"math/big"
 )
 
 func str(d *string) string {
@@ -15,22 +14,6 @@ func str(d *string) string {
 		return *d
 	}
 	return ""
-}
-
-func boolean(b *bool) bool {
-	if b != nil {
-		return *b
-	}
-	return false
-}
-
-func timestamp(ts *util.Timestamp) *big.Int {
-	if ts == nil {
-		return &big.Int{}
-	}
-	i := &big.Int{}
-	_, _ = i.SetString(fmt.Sprintf("%v", ts.MicrosSinceEpoch), 10)
-	return i
 }
 
 // stringifies the micros field in model.Timestamp
