@@ -19,18 +19,13 @@ func main() {
 	baseAssetID := "WAVAX_AM_MB"
 	quoteAssetID := "USDC_EM_MB"
 	gatherer := subscriptions.NewGatherer(lg, envName, apiRoot)
-	if err := gatherer.SetL3WebsocketClient(&baseAssetID, &quoteAssetID, nil); err != nil {
-		panic(err)
-	}
-	if err := gatherer.SetL2WebsocketClient(baseAssetID, quoteAssetID); err != nil {
-		panic(err)
-	}
-	if err := gatherer.SetTradesWebsocketClient(nil, nil, nil); err != nil {
-		panic(err)
-	}
+	gatherer.SetL3WebsocketClient(&baseAssetID, &quoteAssetID, nil)
+	gatherer.SetL2WebsocketClient(baseAssetID, quoteAssetID)
+	gatherer.SetTradesWebsocketClient(nil, nil, nil)
+
 	go func() { // just for demonstration
 		time.Sleep(10 * time.Second)
 		gatherer.RestartWebsocketClient("L3")
 	}()
-	gatherer.Run()
+	gatherer.Run() // starts all clients
 }
