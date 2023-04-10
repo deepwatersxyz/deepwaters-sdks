@@ -28,9 +28,9 @@ type websocketClient struct {
 
 	logFields log.Fields
 
-	envName  string
-	apiRoot  string
-	feedName string
+	envName    string
+	domainName string
+	feedName   string
 
 	subscriptionQuery     string
 	subscriptionVariables map[string]interface{}
@@ -65,11 +65,11 @@ func (wsc *websocketClient) checkInterrupted() bool {
 	return val
 }
 
-func NewWebsocketClient(lg *log.Entry, envName, apiRoot, feedName string, subscriptionVariables map[string]interface{}) (*websocketClient, error) {
+func NewWebsocketClient(lg *log.Entry, envName, domainName, feedName string, subscriptionVariables map[string]interface{}) (*websocketClient, error) {
 
 	wsc := websocketClient{
 		envName:                  envName,
-		apiRoot:                  apiRoot,
+		domainName:               domainName,
 		feedName:                 feedName,
 		subscriptionVariables:    subscriptionVariables,
 		readerToProcessorChannel: make(chan wrappedReceivedMessage, 1024),

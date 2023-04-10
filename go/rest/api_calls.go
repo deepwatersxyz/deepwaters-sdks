@@ -1,4 +1,4 @@
-package main
+package rest
 
 import (
 	"bytes"
@@ -6,16 +6,23 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 )
 
 const (
-	hostURL      = "https://testnet.api.deepwaters.xyz"
+	domainName   = "testnet.api.deepwaters.xyz"
 	apiRoute     = "/rest/v1/"
 	apiKey       = "create this in the testnet webapp"
 	apiSecret    = "create this in the testnet webapp"
 	baseAssetID  = "WBTC.GOERLI.5.TESTNET.PROD"
 	quoteAssetID = "USDC.GOERLI.5.TESTNET.PROD"
 )
+
+func GetRequestURIAndURLFromExtension(domainName, apiRoute, extension string) (string, string) {
+	requestURI := apiRoute + extension
+	u := url.URL{Scheme: "https", Host: domainName, Path: requestURI}
+	return requestURI, u.String()
+}
 
 func SendRequest(client *http.Client, req *http.Request) (statusCode *int, bodyBytes []byte, err error) {
 	resp, err := client.Do(req)
@@ -45,9 +52,9 @@ func SendRequest(client *http.Client, req *http.Request) (statusCode *int, bodyB
 	return &resp.StatusCode, bodyBytes, nil
 }
 
-func GetAPIKeyNonce() (*uint64, error) {
+func GetAPIKeyNonce(domainName, apiRoute, apiKey, apiSecret string) (*uint64, error) {
 	extension := "customer/api-key-status"
-	requestURI, url := GetRequestURIAndURLFromExtension(extension)
+	requestURI, url := GetRequestURIAndURLFromExtension(domainName, apiRoute, extension)
 	headers, err := GetAuthenticationHeaders(apiKey, apiSecret, "GET", requestURI, nil, nil)
 	if err != nil {
 		return nil, err
@@ -77,9 +84,9 @@ func GetAPIKeyNonce() (*uint64, error) {
 	}
 }
 
-func SubmitAMarketOrder(nonce uint64) (*SubmitOrderSuccessResponse, error) {
+func SubmitAMarketOrder(domainName, apiRoute, apiKey, apiSecret string, nonce uint64) (*SubmitOrderSuccessResponse, error) {
 	extension := "orders"
-	requestURI, url := GetRequestURIAndURLFromExtension(extension)
+	requestURI, url := GetRequestURIAndURLFromExtension(domainName, apiRoute, extension)
 
 	payload := SubmitOrderRequest{BaseAssetID: baseAssetID, QuoteAssetID: quoteAssetID, Type: "MARKET", Side: "BUY", QuantityStr: "1.000000"}
 	marshalledPayloadBytes, _ := json.Marshal(payload)
@@ -115,12 +122,12 @@ func SubmitAMarketOrder(nonce uint64) (*SubmitOrderSuccessResponse, error) {
 }
 
 func main() {
-	nonce, err := GetAPIKeyNonce()
+	nonce, err := GetAPIKeyNonce(domainName, apiRoute, apiKey, apiSecret)
 	if err != nil {
 		fmt.Printf("%s", err)
 	} else {
 		fmt.Printf("nonce: %d", *nonce)
-		successResponse, err := SubmitAMarketOrder(*nonce)
+		successResponse, err := SubmitAMarketOrder(domainName, apiRoute, apiKey, apiSecret, *nonce)
 		if err != nil {
 			fmt.Printf("%s", err)
 		} else {

@@ -2,6 +2,7 @@ package main
 
 import (
 	"deepwaters/go-examples/graphql/subscriptions"
+	"deepwaters/go-examples/rest"
 	"deepwaters/go-examples/util"
 	"os"
 	"time"
@@ -10,22 +11,39 @@ import (
 )
 
 const (
-	envName = "mainnet beta"
-	apiRoot = "api.deepwaters.xyz"
+	envName       = "testnet prod"
+	domainName    = "testnet.api.deepwaters.xyz"
+	restAPIRoute  = "/rest/v1/"
+	restAPIKey    = "request in the testnet webapp"
+	restAPISecret = "request in the testnet webapp"
+	baseAssetID   = "WBTC.GOERLI.5.TESTNET.PROD"
+	quoteAssetID  = "USDC.GOERLI.5.TESTNET.PROD"
 )
 
 func main() {
 	lg := util.NewTextLogger(log.TraceLevel, true, os.Stdout)
-	baseAssetID := "WAVAX_AM_MB"
-	quoteAssetID := "USDC_EM_MB"
-	gatherer := subscriptions.NewGatherer(lg, envName, apiRoot)
-	gatherer.SetL3WebsocketClient(&baseAssetID, &quoteAssetID, nil)
+	gatherer := subscriptions.NewGatherer(lg, envName, domainName)
+	gatherer.SetL3WebsocketClient(baseAssetID, quoteAssetID, "")
 	gatherer.SetL2WebsocketClient(baseAssetID, quoteAssetID)
-	gatherer.SetTradesWebsocketClient(nil, nil, nil)
+	gatherer.SetTradesWebsocketClient("", "", "")
 
-	go func() { // just for demonstration
+	go func() { // demonstrates websocket client restarts and interacting with the REST API
 		time.Sleep(10 * time.Second)
 		gatherer.RestartWebsocketClient("L3")
+		time.Sleep(10 * time.Second)
+		nonce, err := rest.GetAPIKeyNonce(domainName, restAPIRoute, restAPIKey, restAPISecret)
+		if err != nil {
+			lg.Errorf("%s", err)
+		} else {
+			lg.Debugf("nonce: %d", *nonce)
+			successResponse, err := rest.SubmitAMarketOrder(domainName, restAPIRoute, restAPIKey, restAPISecret, *nonce)
+			if err != nil {
+				lg.Errorf("%s", err)
+			} else {
+				lg.Debugf("\n%+v", *successResponse.Result)
+			}
+		}
+
 	}()
-	gatherer.Run() // starts all clients
+	gatherer.Run() // starts all subscription (websocket) clients
 }

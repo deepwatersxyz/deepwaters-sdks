@@ -1,4 +1,4 @@
-package main
+package rest
 
 import (
 	"fmt"
@@ -55,10 +55,4 @@ func GetAuthenticationHeaders(apiKey string, apiSecret string, httpMethod string
 	headerValues.SignatureHexStr = *signatureHexStr
 
 	return headerValues.ToHeadersMap(), nil
-}
-
-func GetRequestURIAndURLFromExtension(extension string) (string, string) {
-	requestURI := apiRoute + extension
-	url := hostURL + requestURI
-	return requestURI, url
 }

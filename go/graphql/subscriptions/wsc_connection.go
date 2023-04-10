@@ -34,7 +34,7 @@ type request struct {
 
 func (wsc *websocketClient) subscribe() error {
 
-	u := url.URL{Scheme: "wss", Host: wsc.apiRoot, Path: "/swap/graphql"}
+	u := url.URL{Scheme: "wss", Host: wsc.domainName, Path: "/swap/graphql"}
 	h := http.Header{}
 	h.Set("Content-Type", "application/json")
 
@@ -84,7 +84,7 @@ func (wsc *websocketClient) subscribe() error {
 	return nil
 }
 
-// gets goroutines
+// gets goroutines, one per connection. Upon failure / restart, the old one dies and it gets a new one
 func (wsc *websocketClient) read(iteration int) {
 	wsc.lg.Tracef("reading")
 

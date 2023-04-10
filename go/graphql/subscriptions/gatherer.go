@@ -13,38 +13,38 @@ import (
 type Gatherer struct {
 	lg *log.Entry
 
-	envName string
-	apiRoot string
+	envName    string
+	domainName string
 
 	l3WebsocketClient     *websocketClient
 	l2WebsocketClient     *websocketClient
 	tradesWebsocketClient *websocketClient
 }
 
-func NewGatherer(lg *log.Logger, envName, apiRoot string) *Gatherer {
+func NewGatherer(lg *log.Logger, envName, domainName string) *Gatherer {
 
 	lge := lg.WithFields(log.Fields{"sourceType": "gatherer", "envName": envName})
 	g := Gatherer{lg: lge,
-		envName: envName,
-		apiRoot: apiRoot}
+		envName:    envName,
+		domainName: domainName}
 
 	return &g
 }
 
-func (g *Gatherer) SetL3WebsocketClient(baseAssetID, quoteAssetID, customerAddress *string) error { // more arguments are possible - see swap.OrderFilter
+func (g *Gatherer) SetL3WebsocketClient(baseAssetID, quoteAssetID, customerAddress string) error { // more arguments are possible - see swap.OrderFilter
 
 	variables := make(map[string]interface{})
-	if baseAssetID != nil {
-		variables["baseAssetID"] = *baseAssetID
+	if baseAssetID != "" {
+		variables["baseAssetID"] = baseAssetID
 	}
-	if quoteAssetID != nil {
-		variables["quoteAssetID"] = *quoteAssetID
+	if quoteAssetID != "" {
+		variables["quoteAssetID"] = quoteAssetID
 	}
-	if customerAddress != nil {
-		variables["customerAddress"] = *customerAddress
+	if customerAddress != "" {
+		variables["customerAddress"] = customerAddress
 	}
 
-	l3WebsocketClient, err := NewWebsocketClient(g.lg, g.envName, g.apiRoot, "L3", variables)
+	l3WebsocketClient, err := NewWebsocketClient(g.lg, g.envName, g.domainName, "L3", variables)
 	if err != nil {
 		return err
 	}
@@ -58,7 +58,7 @@ func (g *Gatherer) SetL2WebsocketClient(baseAssetID, quoteAssetID string) error 
 	variables["baseAssetID"] = baseAssetID
 	variables["quoteAssetID"] = quoteAssetID
 
-	l2WebsocketClient, err := NewWebsocketClient(g.lg, g.envName, g.apiRoot, "L2", variables)
+	l2WebsocketClient, err := NewWebsocketClient(g.lg, g.envName, g.domainName, "L2", variables)
 	if err != nil {
 		return err
 	}
@@ -66,20 +66,20 @@ func (g *Gatherer) SetL2WebsocketClient(baseAssetID, quoteAssetID string) error 
 	return nil
 }
 
-func (g *Gatherer) SetTradesWebsocketClient(baseAssetID, quoteAssetID, customerAddress *string) error { // more arguments are possible - see swap.TradeFilter
+func (g *Gatherer) SetTradesWebsocketClient(baseAssetID, quoteAssetID, customerAddress string) error { // more arguments are possible - see swap.TradeFilter
 
 	variables := make(map[string]interface{})
-	if baseAssetID != nil {
-		variables["baseAssetID"] = *baseAssetID
+	if baseAssetID != "" {
+		variables["baseAssetID"] = baseAssetID
 	}
-	if quoteAssetID != nil {
-		variables["quoteAssetID"] = *quoteAssetID
+	if quoteAssetID != "" {
+		variables["quoteAssetID"] = quoteAssetID
 	}
-	if customerAddress != nil {
-		variables["customerAddress"] = *customerAddress
+	if customerAddress != "" {
+		variables["customerAddress"] = customerAddress
 	}
 
-	tradesWebsocketClient, err := NewWebsocketClient(g.lg, g.envName, g.apiRoot, "trades", variables)
+	tradesWebsocketClient, err := NewWebsocketClient(g.lg, g.envName, g.domainName, "trades", variables)
 	if err != nil {
 		return err
 	}
