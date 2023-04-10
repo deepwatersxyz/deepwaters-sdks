@@ -35,12 +35,12 @@ func main() {
 		if err != nil {
 			lg.Errorf("%s", err)
 		} else {
-			lg.Debugf("nonce: %d", *nonce)
+			lg.Infof("nonce: %d", *nonce)
 			successResponse, err := rest.SubmitAMarketOrder(domainName, restAPIRoute, restAPIKey, restAPISecret, *nonce)
 			if err != nil {
 				lg.Errorf("%s", err)
 			} else {
-				lg.Debugf("\n%+v", *successResponse.Result)
+				lg.Infof("\n%+v", *successResponse.Result)
 			}
 		}
 

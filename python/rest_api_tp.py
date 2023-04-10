@@ -4,8 +4,8 @@ from secp256k1_utils import get_signature_hex_str
 host_url = 'https://testnet.api.deepwaters.xyz'
 api_route = '/rest/v1/'
 # request these in the webapp
-api_key = '0x9855be3b4907301a7aecb1c45e202ede14841e13'
-api_secret = '0x586f9d843f7c5c0c47ebb7a0d115c734a49aa862cb5eeb2e44056d7f5dc147c9'
+api_key = None
+api_secret = None
 nonce_d = {'nonce': None}
 base_asset_id = 'WBTC.GOERLI.5.TESTNET.PROD'
 quote_asset_id = 'USDC.GOERLI.5.TESTNET.PROD'

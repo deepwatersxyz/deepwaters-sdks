@@ -1,3 +1,5 @@
+// graphql subscription protocol details
+
 package subscriptions
 
 import (
