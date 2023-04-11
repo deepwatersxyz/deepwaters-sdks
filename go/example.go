@@ -3,7 +3,7 @@ package main
 import (
 	"deepwaters/go-examples/graphql/subscriptions"
 	"deepwaters/go-examples/rest"
-	"deepwaters/go-examples/util"
+	//"deepwaters/go-examples/util"
 	"os"
 	"time"
 
@@ -21,7 +21,10 @@ const (
 )
 
 func main() {
-	lg := util.NewTextLogger(log.TraceLevel, true, os.Stdout)
+	lg := log.New()
+	lg.SetOutput(os.Stdout)
+	lg.SetLevel(log.TraceLevel)
+
 	gatherer := subscriptions.NewGatherer(lg, envName, domainName)
 	gatherer.SetL3WebsocketClient(baseAssetID, quoteAssetID, "")
 	gatherer.SetL2WebsocketClient(baseAssetID, quoteAssetID)
