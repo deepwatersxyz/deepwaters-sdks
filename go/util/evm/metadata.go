@@ -15,6 +15,30 @@ func GetFujiAVAX() NativeCurrency {
 	}
 }
 
+func GetGoerliETH() NativeCurrency {
+	return NativeCurrency{
+		Decimals: 18,
+		Name:     "Goerli ETH",
+		Symbol:   "ETH",
+	}
+}
+
+func GetMumbaiMATIC() NativeCurrency {
+	return NativeCurrency{
+		Decimals: 18,
+		Name:     "Mumbai MATIC",
+		Symbol:   "MATIC",
+	}
+}
+
+func GetRialtoBNB() NativeCurrency {
+	return NativeCurrency{
+		Decimals: 18,
+		Name:     "Rialto BNB",
+		Symbol:   "BNB",
+	}
+}
+
 func GetFujiTestnetProdPositionManagerConfig() ContractConfig {
 	return ContractConfig{
 		ABIFilePath:   positionManagerABIPath,
