@@ -7,6 +7,8 @@ const (
 	erc20ABIPath = "../abi/ERC20.json"
 )
 
+// testnet
+
 func GetFujiAVAX() NativeCurrency {
 	return NativeCurrency{
 		Decimals: 18,
@@ -18,7 +20,7 @@ func GetFujiAVAX() NativeCurrency {
 func GetGoerliETH() NativeCurrency {
 	return NativeCurrency{
 		Decimals: 18,
-		Name:     "Goerli ETH",
+		Name:     "Goerli Ether",
 		Symbol:   "ETH",
 	}
 }
@@ -140,7 +142,7 @@ func GetMumbaiTestnetProdWMATICConfig() ContractConfig {
 		ChainID:       80001,
 		ChainName:     "mumbai",
 		AddressHexStr: "0x9F324abb8a8744a18030deB6b2888dB6B7B6841D",
-		Name:          "WBNB",
+		Name:          "WMATIC",
 		Description:   util.StrP("Wrapped MATIC"),
 		DeployedBlock: util.Uint64P(29297236),
 	}
@@ -191,5 +193,158 @@ func GetRialtoTestnetProdUSDConfig() ContractConfig {
 		Name:          "USDC",
 		Description:   util.StrP("USD Coin"),
 		DeployedBlock: util.Uint64P(24845232),
+	}
+}
+
+// mainnet
+
+func GetAVAX() NativeCurrency {
+	return NativeCurrency{
+		Decimals: 18,
+		Name:     "AVAX",
+		Symbol:   "AVAX",
+	}
+}
+
+func GetETH() NativeCurrency {
+	return NativeCurrency{
+		Decimals: 18,
+		Name:     "Ether",
+		Symbol:   "ETH",
+	}
+}
+
+func GetMATIC() NativeCurrency {
+	return NativeCurrency{
+		Decimals: 18,
+		Name:     "MATIC",
+		Symbol:   "MATIC",
+	}
+}
+
+func GetBNB() NativeCurrency {
+	return NativeCurrency{
+		Decimals: 18,
+		Name:     "BNB",
+		Symbol:   "BNB",
+	}
+}
+
+func GetAvalancheMainnetPositionManagerConfig() ContractConfig {
+	return ContractConfig{
+		ABIFilePath:   positionManagerABIPath,
+		ChainID:       43114,
+		ChainName:     "avalance c-chain",
+		AddressHexStr: "0x32bb0a6CeEfcE9cC222b54f8159f56aF035D2aBA",
+		Name:          "PositionManager",
+		Description:   util.StrP("Position Manager"),
+		DeployedBlock: util.Uint64P(26134721),
+	}
+}
+
+func GetAvalancheMainnetWAVAXConfig() ContractConfig {
+	return ContractConfig{
+		ABIFilePath:   erc20ABIPath,
+		ChainID:       43114,
+		ChainName:     "avalanche c-chain",
+		AddressHexStr: "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7",
+		Name:          "WAVAX",
+		Description:   util.StrP("Wrapped AVAX"),
+		DeployedBlock: util.Uint64P(820),
+	}
+}
+
+func GetEthereumMainnetPositionManagerConfig() ContractConfig {
+	return ContractConfig{
+		ABIFilePath:   positionManagerABIPath,
+		ChainID:       1,
+		ChainName:     "ethereum mainnet",
+		AddressHexStr: "0xC86289E5889eF21bA60dC6D5F1c487EC84FbED61",
+		Name:          "PositionManager",
+		Description:   util.StrP("Position Manager"),
+		DeployedBlock: util.Uint64P(16607968),
+	}
+}
+
+func GetEthereumMainnetWETHConfig() ContractConfig {
+	return ContractConfig{
+		ABIFilePath:   erc20ABIPath,
+		ChainID:       1,
+		ChainName:     "ethereum mainnet",
+		AddressHexStr: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+		Name:          "WETH",
+		Description:   util.StrP("Wrapped Ether"),
+		DeployedBlock: util.Uint64P(4719568),
+	}
+}
+func GetEthereumMainnetWBTCConfig() ContractConfig {
+	return ContractConfig{
+		ABIFilePath:   erc20ABIPath,
+		ChainID:       1,
+		ChainName:     "ethereum mainnet",
+		AddressHexStr: "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",
+		Name:          "WBTC",
+		Description:   util.StrP("Wrapped Bitcoin"),
+		DeployedBlock: util.Uint64P(6766284),
+	}
+}
+
+func GetEthereumMainnetUSDCConfig() ContractConfig {
+	return ContractConfig{
+		ABIFilePath:   erc20ABIPath,
+		ChainID:       1,
+		ChainName:     "ethereum mainnet",
+		AddressHexStr: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+		Name:          "USDC",
+		Description:   util.StrP("USD Coin"),
+		DeployedBlock: util.Uint64P(6082465),
+	}
+}
+
+func GetPolygonMainnetPositionManagerConfig() ContractConfig {
+	return ContractConfig{
+		ABIFilePath:   positionManagerABIPath,
+		ChainID:       137,
+		ChainName:     "polygon mainnet",
+		AddressHexStr: "0x32A717699C68ca555D7E1212F8822c980A8d48A3",
+		Name:          "PositionManager",
+		Description:   util.StrP("Position Manager"),
+		DeployedBlock: util.Uint64P(39185355),
+	}
+}
+
+func GetPolygonMainnetWMATICConfig() ContractConfig {
+	return ContractConfig{
+		ABIFilePath:   erc20ABIPath,
+		ChainID:       137,
+		ChainName:     "polygon mainnet",
+		AddressHexStr: "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270",
+		Name:          "WMATIC",
+		Description:   util.StrP("Wrapped MATIC"),
+		DeployedBlock: util.Uint64P(4931456),
+	}
+}
+
+func GetBSCMainnetPositionManagerConfig() ContractConfig {
+	return ContractConfig{
+		ABIFilePath:   positionManagerABIPath,
+		ChainID:       56,
+		ChainName:     "binance smart chain mainnet",
+		AddressHexStr: "0x5612d989868fe9f3A2b2923D66C577d1d8bE2A8D",
+		Name:          "PositionManager",
+		Description:   util.StrP("Position Manager"),
+		DeployedBlock: util.Uint64P(25584258),
+	}
+}
+
+func GetBSCWBNBConfig() ContractConfig {
+	return ContractConfig{
+		ABIFilePath:   erc20ABIPath,
+		ChainID:       56,
+		ChainName:     "binance smart chain mainnet",
+		AddressHexStr: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
+		Name:          "WBNB",
+		Description:   util.StrP("Wrapped BNB"),
+		DeployedBlock: util.Uint64P(149268),
 	}
 }
