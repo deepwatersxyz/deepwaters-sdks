@@ -1,7 +1,7 @@
 package accounting
 
 const BalanceResponseFields = `{
-	customerAddress
+    customerAddress
     assetID
     amount
     service {

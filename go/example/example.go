@@ -4,22 +4,23 @@ package main
 
 import (
 	"context"
-	"deepwaters/go-examples/graphql/subscriptions"
-	"deepwaters/go-examples/rest"
-	"deepwaters/go-examples/util/evm"
-	"deepwaters/go-examples/web3"
-
 	"os"
 	"time"
 
 	abiPackage "github.com/ethereum/go-ethereum/accounts/abi"
 	log "github.com/sirupsen/logrus"
+
+	"deepwaters/go-examples/graphql/subscriptions"
+	"deepwaters/go-examples/rest"
+	"deepwaters/go-examples/util/evm"
+	"deepwaters/go-examples/web3"
 )
 
 const (
-	envName         = "testnet prod"
-	domainName      = "testnet.api.deepwaters.xyz"
-	restAPIRoute    = "/rest/v1/"
+	envName      = "testnet prod"
+	domainName   = "testnet.api.deepwaters.xyz"
+	restAPIRoute = "/rest/v1/"
+
 	customerAddress = ""
 	restAPIKey      = "request in the testnet webapp"
 	restAPISecret   = "request in the testnet webapp"
@@ -30,7 +31,6 @@ const (
 	chainID                = 43113
 	chainName              = "fuji"
 	rpcURL                 = "insert node URL here"
-	perSecRateLimit        = 32
 	maxGasPriceWeiStr      = "50000000000"
 	addEstimatedGasPercent = 30
 )
@@ -41,25 +41,18 @@ func main() {
 	lg.SetLevel(log.TraceLevel)
 
 	// check AVAX and WAVAX balances, on-chain and in deepwaters
-	wavaxConfig := evm.GetFujiTestnetProdWAVAXConfig()
-	contractCfgs := []evm.ContractConfig{wavaxConfig}
-	cfg, err := evm.NewEVMConnectorConfig(chainID, chainName, rpcURL, perSecRateLimit, maxGasPriceWeiStr, addEstimatedGasPercent, evm.GetFujiAVAX(), contractCfgs)
+	cfg, err := evm.NewConnectorConfig(chainID, chainName, rpcURL, maxGasPriceWeiStr, addEstimatedGasPercent, evm.GetFujiAVAX())
 	if err != nil {
 		lg.Errorf("%s", err)
 		return
 	}
-	connector, err := evm.NewEVMConnector(lg, cfg)
-	if err != nil {
-		lg.Errorf("%s", err)
-		return
-	}
+	connector := evm.NewConnector(lg, cfg)
 	if err := connector.Open(); err != nil {
 		lg.Errorf("%s", err)
 		return
 	}
 
 	restAPIInfo := rest.ConnectionDetails{DomainName: domainName, APIRoute: restAPIRoute, APIKey: restAPIKey, APISecret: restAPISecret}
-
 	asset, err := rest.GetAssetReferenceData(restAPIInfo, "WAVAX")
 	if err != nil {
 		lg.Errorf("%s", err)
@@ -67,7 +60,11 @@ func main() {
 	}
 
 	wavaxAssetID := asset.AssetID
-	wavaxContract := connector.GetContracts().GetContract(connector.GetConfig().ChainName, wavaxConfig.AddressHexStr)
+	wavaxContract, err := evm.NewContractFromConfig(evm.GetFujiTestnetProdWAVAXConfig(), connector)
+	if err != nil {
+		lg.Panic(err)
+	}
+
 	decimalsResult, err := wavaxContract.Call(context.Background(), nil, nil, "decimals")
 	if err != nil {
 		lg.Errorf("%+v", decimalsResult)

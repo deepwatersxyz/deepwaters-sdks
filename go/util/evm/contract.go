@@ -14,30 +14,24 @@ import (
 )
 
 type contract struct {
-	chainID       int
-	chainName     string
 	abi           *abi.ABI
 	address       common.Address
 	name          string
-	description   *string
 	deployedBlock *uint64
-	evm           EVMConnector
+	evm           Connector
 }
 
-func NewContract(abi *abi.ABI, addr, name string, description *string, deployedBlock *uint64, evm EVMConnector) Contract {
+func NewContract(abi *abi.ABI, addr, name string, deployedBlock *uint64, evm Connector) Contract {
 	return &contract{
 		name:          name,
-		chainID:       evm.GetConfig().ChainID,
-		chainName:     evm.GetConfig().ChainName,
 		abi:           abi,
 		address:       common.HexToAddress(addr),
-		description:   description,
 		evm:           evm,
 		deployedBlock: deployedBlock,
 	}
 }
 
-func NewContractFromConfig(contractConfig ContractConfig, evm EVMConnector) (Contract, error) {
+func NewContractFromConfig(contractConfig ContractConfig, evm Connector) (Contract, error) {
 	abiJSONBytes, err := ioutil.ReadFile(contractConfig.ABIFilePath)
 	if err != nil {
 		return nil, err
@@ -46,19 +40,11 @@ func NewContractFromConfig(contractConfig ContractConfig, evm EVMConnector) (Con
 	if err != nil {
 		return nil, err
 	}
-	return NewContract(&abi, contractConfig.AddressHexStr, contractConfig.Name, contractConfig.Description, contractConfig.DeployedBlock, evm), nil
+	return NewContract(&abi, contractConfig.AddressHexStr, contractConfig.Name, contractConfig.DeployedBlock, evm), nil
 }
 
 func (c *contract) GetName() string {
 	return c.name
-}
-
-func (c *contract) GetChainID() int {
-	return c.chainID
-}
-
-func (c *contract) GetChainName() string {
-	return c.chainName
 }
 
 func (c *contract) GetABI() *abi.ABI {
@@ -77,11 +63,7 @@ func (c *contract) GetAddressStr(checkSum bool) string {
 	return strings.ToLower(str)
 }
 
-func (c *contract) GetDescription() *string {
-	return c.description
-}
-
-func (c *contract) GetEVM() EVMConnector {
+func (c *contract) GetConnector() Connector {
 	return c.evm
 }
 
@@ -98,7 +80,7 @@ func (c *contract) Call(ctx context.Context, block *uint64, from *string, f stri
 }
 
 func (c *contract) Send(mode SendMode, from Wallet, to *string, value *big.Int, nonce *uint64, f *string, args ...interface{}) (*string, *types.Receipt, *uint64, error) {
-	hash, receipt, nonce, err := c.evm.GetTransactionSender().Send(SendArgs{
+	hash, receipt, nonce, err := c.evm.Send(SendArgs{
 		Mode:    mode,
 		Wallet:  from,
 		Address: common.HexToAddress(*to),

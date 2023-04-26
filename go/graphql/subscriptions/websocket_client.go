@@ -29,10 +29,10 @@ type websocketClient struct {
 
 	logFields log.Fields
 
-	envName    string
-	domainName string
-	feedName   string
-	graphQLPath   string
+	envName     string
+	domainName  string
+	feedName    string
+	graphQLPath string
 
 	subscriptionQuery     string
 	subscriptionVariables map[string]interface{}

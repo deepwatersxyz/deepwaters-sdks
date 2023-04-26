@@ -1,8 +1,9 @@
 package main
 
 import (
-	"deepwaters/go-examples/rest"
 	"fmt"
+
+	"deepwaters/go-examples/rest"
 )
 
 const (

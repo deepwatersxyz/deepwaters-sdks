@@ -27,7 +27,6 @@ func NewWalletFromHexStr(privateKeyHexStr string) (Wallet, error) {
 }
 
 func NewWalletFromFilePath(filePath string) (Wallet, error) {
-
 	privateKeyBytes, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return nil, err

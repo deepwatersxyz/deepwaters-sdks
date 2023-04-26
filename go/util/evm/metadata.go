@@ -4,7 +4,7 @@ import "deepwaters/go-examples/util"
 
 const (
 	positionManagerABIPath = "../abi/PositionManager.json"
-	erc20ABIPath = "../abi/ERC20.json"
+	erc20ABIPath           = "../abi/ERC20.json"
 )
 
 // testnet

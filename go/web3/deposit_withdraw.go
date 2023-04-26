@@ -27,8 +27,7 @@ type MoveTokenInfo struct {
 	ERC20Details   ERC20Details
 }
 
-func CheckNativeAndWrappedNativeBalances(lg *log.Logger, restAPIInfo rest.ConnectionDetails, userAddress string, connector evm.EVMConnector, erc20Details ERC20Details) {
-
+func CheckNativeAndWrappedNativeBalances(lg *log.Logger, restAPIInfo rest.ConnectionDetails, userAddress string, connector evm.Connector, erc20Details ERC20Details) {
 	wrappedABI := erc20Details.Contract.GetABI()
 
 	// get on-chain native token balance
@@ -64,7 +63,6 @@ func CheckNativeAndWrappedNativeBalances(lg *log.Logger, restAPIInfo rest.Connec
 }
 
 func WithdrawERC20Token(lg *log.Logger, moveTokenInfo MoveTokenInfo, amountStr string) error {
-
 	withdrawalR, _, err := rest.GetWithdrawalInstructions(moveTokenInfo.RESTAPIInfo, moveTokenInfo.ERC20Details.AssetID, amountStr, nil)
 	if err != nil {
 		return fmt.Errorf("ERC20 withdrawal %w", err)

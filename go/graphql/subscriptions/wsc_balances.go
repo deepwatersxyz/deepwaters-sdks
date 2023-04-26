@@ -1,9 +1,10 @@
 package subscriptions
 
 import (
-	"deepwaters/go-examples/graphql/accounting"
 	"encoding/json"
 	"fmt"
+
+	"deepwaters/go-examples/graphql/accounting"
 )
 
 func (wsc *websocketClient) setupBalances() error {

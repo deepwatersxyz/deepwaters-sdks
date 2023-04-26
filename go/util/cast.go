@@ -37,12 +37,9 @@ func Uint64P(i uint64) *uint64 {
 	return &i
 }
 
-func Uint64Str(i *uint64, pretty bool) string {
+func Uint64Str(i *uint64) string {
 	if i == nil {
 		return "<nil>"
-	}
-	if pretty {
-		return PrettyNum(*i)
 	}
 	return fmt.Sprintf("%+v", *i)
 }
