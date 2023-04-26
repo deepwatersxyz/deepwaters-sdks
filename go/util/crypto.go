@@ -35,7 +35,7 @@ func ECRecover(hash common.Hash, signature string, allowNoRecoveryIDOffset bool)
 	if len(sig) != crypto.SignatureLength {
 		return common.Address{}, fmt.Errorf("signature must be %d bytes long", crypto.SignatureLength)
 	}
-	if allowNoRecoveryIDOffset == true && sig[crypto.RecoveryIDOffset] < 2 {
+	if allowNoRecoveryIDOffset && sig[crypto.RecoveryIDOffset] < 2 {
 		sig[crypto.RecoveryIDOffset] += 27
 	}
 	if sig[crypto.RecoveryIDOffset] != 27 && sig[crypto.RecoveryIDOffset] != 28 {

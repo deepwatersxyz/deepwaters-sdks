@@ -90,7 +90,7 @@ type DepositERC20Instructions struct {
 	Sender   string            `json:"sender"`
 	Function string            `json:"function"`
 	Args     *DepositERC20Args `json:"args"`
-	Note     *string           `json:"note,omitempty"` // this is the only difference with the accounting model object
+	Note     *string           `json:"note,omitempty"`
 }
 
 type DepositERC20Args struct {
@@ -117,7 +117,7 @@ type WithdrawalERC20Instructions struct {
 	Sender   string               `json:"sender"`
 	Function string               `json:"function"`
 	Args     *WithdrawalERC20Args `json:"args"`
-	Note     *string              `json:"note,omitempty"` // this is the only difference with the accounting model object
+	Note     *string              `json:"note,omitempty"`
 }
 
 type WithdrawalERC20Args struct {
