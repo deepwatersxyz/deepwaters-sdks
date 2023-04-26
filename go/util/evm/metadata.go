@@ -15,10 +15,6 @@ func GetFujiAVAX() NativeCurrency {
 	}
 }
 
-func GetTestnetProdDomainName() string {
-	return "testnet.api.deepwaters.xyz"
-}
-
 func GetFujiTestnetProdPositionManagerConfig() ContractConfig {
 	return ContractConfig{
 		ABIFilePath:   positionManagerABIPath,

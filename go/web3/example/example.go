@@ -21,19 +21,20 @@ const (
 
 	customerAddress    = ""
 	customerPrivateKey = ""
+	domainName         = "testnet.api.deepwaters.xyz"
+	restAPIRoute       = "/rest/v1/"
 	restAPIKey         = "request in the testnet webapp"
 	restAPISecret      = "request in the testnet webapp"
 )
 
 func main() {
 
-	domainName := evm.GetTestnetProdDomainName()
 	positionManagerConfig := evm.GetFujiTestnetProdPositionManagerConfig()
 	wavaxConfig := evm.GetFujiTestnetProdWAVAXConfig()
 
 	restAPIInfo := rest.ConnectionDetails{
 		DomainName: domainName,
-		APIRoute:   "/rest/v1/",
+		APIRoute:   restAPIRoute,
 		APIKey:     restAPIKey,
 		APISecret:  restAPISecret,
 	}
