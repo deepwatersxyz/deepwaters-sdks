@@ -26,7 +26,7 @@ func (c *contracts) GetKey(chainName string, address string) string {
 }
 
 func (c *contracts) LoadFromConfigs(contractConfigs []ContractConfig, evm EVMConnector, lg *log.Logger) error {
-	lge := lg.WithField("package", "micro.web3.evm")
+	lge := lg.WithField("package", "util.evm")
 
 	for _, cfg := range contractConfigs {
 

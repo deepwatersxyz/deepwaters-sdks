@@ -23,7 +23,7 @@ type transactionSender struct {
 
 func NewTransactionSender(lg *log.Logger, evm EVMConnector) TransactionSender {
 	return &transactionSender{
-		lg:  lg.WithField("package", "micro.web3.evm"),
+		lg:  lg.WithField("package", "util.evm"),
 		evm: evm,
 	}
 }

@@ -26,7 +26,7 @@ type connector struct {
 
 func NewEVMConnector(lg *log.Logger, cfg *EVMConnectorConfig) (*connector, error) {
 	c := &connector{
-		lg:        lg.WithField("package", "micro.web3.evm"),
+		lg:        lg.WithField("package", "util.evm"),
 		cfg:       cfg,
 		contracts: NewContracts(),
 		dial:      NewETHClientWrapper,
