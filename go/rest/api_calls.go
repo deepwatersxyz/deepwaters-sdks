@@ -9,6 +9,13 @@ import (
 	"net/url"
 )
 
+type ConnectionDetails struct {
+	DomainName string
+	APIRoute   string
+	APIKey     string
+	APISecret  string
+}
+
 func GetRequestURIAndURLFromExtension(domainName, apiRoute, extension string) (string, string) {
 	requestURI := apiRoute + extension
 	u := url.URL{Scheme: "https", Host: domainName, Path: requestURI}
@@ -43,10 +50,10 @@ func SendRequest(client *http.Client, req *http.Request) (statusCode *int, bodyB
 	return &resp.StatusCode, bodyBytes, nil
 }
 
-func GetAPIKeyNonce(domainName, apiRoute, apiKey, apiSecret string) (*uint64, error) {
+func GetAPIKeyNonce(d ConnectionDetails) (*uint64, error) {
 	extension := "customer/api-key-status"
-	requestURI, url := GetRequestURIAndURLFromExtension(domainName, apiRoute, extension)
-	headers, err := GetAuthenticationHeaders(apiKey, apiSecret, "GET", requestURI, nil, nil)
+	requestURI, url := GetRequestURIAndURLFromExtension(d.DomainName, d.APIRoute, extension)
+	headers, err := GetAuthenticationHeaders(d.APIKey, d.APISecret, "GET", requestURI, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -71,26 +78,65 @@ func GetAPIKeyNonce(domainName, apiRoute, apiKey, apiSecret string) (*uint64, er
 		nonce := successResponse.Result.Nonce
 		return &nonce, nil
 	} else {
-		return nil, fmt.Errorf("unexpected status code %d", *statusCode)
+		return nil, fmt.Errorf("unexpected status code: %d", *statusCode)
 	}
 }
 
-func SubmitAMarketOrder(domainName, apiRoute, apiKey, apiSecret, baseAssetID, quoteAssetID string, nonce uint64) (*SubmitOrderSuccessResponse, error) {
-	extension := "orders"
-	requestURI, url := GetRequestURIAndURLFromExtension(domainName, apiRoute, extension)
-
-	payload := SubmitOrderRequest{BaseAssetID: baseAssetID, QuoteAssetID: quoteAssetID, Type: "MARKET", Side: "BUY", QuantityStr: "1.000000"}
-	marshalledPayloadBytes, _ := json.Marshal(payload)
-	marshalledPayload := string(marshalledPayloadBytes)
-
-	headers, err := GetAuthenticationHeaders(apiKey, apiSecret, "POST", requestURI, &nonce, &marshalledPayload)
+func GetUserInfo(d ConnectionDetails) (*GetCustomerSuccessResponse, error) {
+	extension := "customer"
+	requestURI, url := GetRequestURIAndURLFromExtension(d.DomainName, d.APIRoute, extension)
+	headers, err := GetAuthenticationHeaders(d.APIKey, d.APISecret, "GET", requestURI, nil, nil)
 	if err != nil {
 		return nil, err
 	}
 	client := &http.Client{}
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(marshalledPayloadBytes))
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
+	}
+	for k, v := range headers {
+		req.Header.Set(k, v)
+	}
+	statusCode, bodyBytes, err := SendRequest(client, req)
+	if err != nil {
+		return nil, err
+	}
+	if *statusCode == 200 {
+		var successResponse GetCustomerSuccessResponse
+		err = json.Unmarshal(bodyBytes, &successResponse)
+		if err != nil {
+			return nil, err
+		}
+		return &successResponse, nil
+	} else {
+		return nil, fmt.Errorf("unexpected status code: %d", *statusCode)
+	}
+}
+
+func SubmitOrder(d ConnectionDetails, orderRequest SubmitOrderRequest, nonce *uint64) (*SubmitOrderSuccessResponse, *uint64, error) {
+
+	var err error
+	if nonce == nil {
+		nonce, err = GetAPIKeyNonce(d)
+		if err != nil {
+			return nil, nil, err
+		}
+	}
+
+	extension := "orders"
+	requestURI, url := GetRequestURIAndURLFromExtension(d.DomainName, d.APIRoute, extension)
+
+	marshalledPayloadBytes, _ := json.Marshal(orderRequest)
+	marshalledPayload := string(marshalledPayloadBytes)
+
+	headers, err := GetAuthenticationHeaders(d.APIKey, d.APISecret, "POST", requestURI, nonce, &marshalledPayload)
+	if err != nil {
+		return nil, nil, err
+	}
+	client := &http.Client{}
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(marshalledPayloadBytes))
+	if err != nil {
+		return nil, nil, err
 	}
 	for k, v := range headers {
 		req.Header.Set(k, v)
@@ -98,16 +144,151 @@ func SubmitAMarketOrder(domainName, apiRoute, apiKey, apiSecret, baseAssetID, qu
 	req.Header.Set("Content-Type", "application/json")
 	statusCode, bodyBytes, err := SendRequest(client, req)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	if *statusCode == 201 {
 		var successResponse SubmitOrderSuccessResponse
 		err = json.Unmarshal(bodyBytes, &successResponse)
 		if err != nil {
+			return nil, nil, err
+		}
+		*nonce += 1
+		return &successResponse, nonce, nil
+	} else {
+		return nil, nil, fmt.Errorf("unexpected status code: %d", *statusCode)
+	}
+}
+
+// amount is human readable e.g. ".01"
+func GetDepositInstructions(d ConnectionDetails, assetID, amount string, nonce *uint64) (*DepositInstructionsSuccessResponse, *uint64, error) {
+
+	var err error
+	if nonce == nil {
+		nonce, err = GetAPIKeyNonce(d)
+		if err != nil {
+			return nil, nil, err
+		}
+	}
+
+	extension := "deposit-instructions"
+	requestURI, url := GetRequestURIAndURLFromExtension(d.DomainName, d.APIRoute, extension)
+
+	payload := DepositInstructionsRequest{Asset: assetID, Amount: amount}
+	marshalledPayloadBytes, _ := json.Marshal(payload)
+	marshalledPayload := string(marshalledPayloadBytes)
+
+	headers, err := GetAuthenticationHeaders(d.APIKey, d.APISecret, "POST", requestURI, nonce, &marshalledPayload)
+	if err != nil {
+		return nil, nil, err
+	}
+	client := &http.Client{}
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(marshalledPayloadBytes))
+	if err != nil {
+		return nil, nil, err
+	}
+	for k, v := range headers {
+		req.Header.Set(k, v)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	statusCode, bodyBytes, err := SendRequest(client, req)
+	if err != nil {
+		return nil, nil, err
+	}
+	if *statusCode == 201 {
+		var successResponse DepositInstructionsSuccessResponse
+		err = json.Unmarshal(bodyBytes, &successResponse)
+		if err != nil {
+			return nil, nil, err
+		}
+		*nonce += 1
+		return &successResponse, nonce, nil
+	} else {
+		return nil, nil, fmt.Errorf("unexpected status code: %d", *statusCode)
+	}
+}
+
+// amount is human readable e.g. ".01"
+func GetWithdrawalInstructions(d ConnectionDetails, assetID, amount string, nonce *uint64) (*WithdrawalInstructionsSuccessResponse, *uint64, error) {
+
+	var err error
+	if nonce == nil {
+		nonce, err = GetAPIKeyNonce(d)
+		if err != nil {
+			return nil, nil, err
+		}
+	}
+
+	extension := "withdrawal-instructions"
+	requestURI, url := GetRequestURIAndURLFromExtension(d.DomainName, d.APIRoute, extension)
+
+	payload := WithdrawalInstructionsRequest{Asset: assetID, Amount: amount}
+	marshalledPayloadBytes, _ := json.Marshal(payload)
+	marshalledPayload := string(marshalledPayloadBytes)
+
+	headers, err := GetAuthenticationHeaders(d.APIKey, d.APISecret, "POST", requestURI, nonce, &marshalledPayload)
+	if err != nil {
+		return nil, nil, err
+	}
+	client := &http.Client{}
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(marshalledPayloadBytes))
+	if err != nil {
+		return nil, nil, err
+	}
+	for k, v := range headers {
+		req.Header.Set(k, v)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	statusCode, bodyBytes, err := SendRequest(client, req)
+	if err != nil {
+		return nil, nil, err
+	}
+	if *statusCode == 201 {
+		var successResponse WithdrawalInstructionsSuccessResponse
+		err = json.Unmarshal(bodyBytes, &successResponse)
+		if err != nil {
+			return nil, nil, err
+		}
+		*nonce += 1
+		return &successResponse, nil, nil
+	} else {
+		return nil, nil, fmt.Errorf("unexpected status code: %d", *statusCode)
+	}
+}
+
+func GetAssetReferenceData(d ConnectionDetails, ticker string) (*Asset, error) {
+
+	extension := "assets"
+	requestURI, url := GetRequestURIAndURLFromExtension(d.DomainName, d.APIRoute, extension)
+
+	headers, err := GetAuthenticationHeaders(d.APIKey, d.APISecret, "GET", requestURI, nil, nil)
+	if err != nil {
+		return nil, err
+	}
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+	for k, v := range headers {
+		req.Header.Set(k, v)
+	}
+	statusCode, bodyBytes, err := SendRequest(client, req)
+	if err != nil {
+		return nil, err
+	}
+	if *statusCode == 200 {
+		var successResponse AssetsSuccessResponse
+		err = json.Unmarshal(bodyBytes, &successResponse)
+		if err != nil {
 			return nil, err
 		}
-		return &successResponse, nil
+		for _, asset := range successResponse.Result {
+			if asset.Ticker == ticker {
+				return asset, nil
+			}
+		}
+		return nil, fmt.Errorf("could not find ticker: %s", ticker)
 	} else {
-		return nil, fmt.Errorf("unexpected status code %d", *statusCode)
+		return nil, fmt.Errorf("unexpected status code: %d", *statusCode)
 	}
 }

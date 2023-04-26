@@ -8,11 +8,9 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 
 	"encoding/hex"
-)
 
-func StrP(s string) *string {
-	return &s
-}
+	"deepwaters/go-examples/util"
+)
 
 func CheckPrivateKeyHexStr(privateKeyHexStr string) error {
 	if privateKeyHexStr[:2] != "0x" {
@@ -39,7 +37,7 @@ func GetECDSASignatureHexStr(hash common.Hash, privateKey *ecdsa.PrivateKey) (*s
 	if err != nil {
 		return nil, err
 	}
-	result := StrP("0x" + hex.EncodeToString(sig))
+	result := util.StrP("0x" + hex.EncodeToString(sig))
 	return result, nil
 }
 

@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/websocket"
 	log "github.com/sirupsen/logrus"
 
+	"deepwaters/go-examples/graphql/accounting"
 	"deepwaters/go-examples/graphql/swap"
 	"deepwaters/go-examples/util"
 )
@@ -31,6 +32,7 @@ type websocketClient struct {
 	envName    string
 	domainName string
 	feedName   string
+	graphQLPath   string
 
 	subscriptionQuery     string
 	subscriptionVariables map[string]interface{}
@@ -38,9 +40,10 @@ type websocketClient struct {
 	connection *(websocket.Conn)
 
 	// go to the gatherer
-	l3OutputChannel     chan swap.Order
-	l2OutputChannel     chan swap.OrderBookLevelUpdate
-	tradesOutputChannel chan swap.Trade
+	l3OutputChannel       chan swap.Order
+	l2OutputChannel       chan swap.OrderBookLevelUpdate
+	tradesOutputChannel   chan swap.Trade
+	balancesOutputChannel chan accounting.Balance
 
 	readErrorChannel         chan wrappedError
 	readerToProcessorChannel chan wrappedReceivedMessage
@@ -77,6 +80,12 @@ func NewWebsocketClient(lg *log.Entry, envName, domainName, feedName string, sub
 		readErrorChannel:         make(chan wrappedError),
 	}
 
+	if feedName == "balances" {
+		wsc.graphQLPath = "/accounting/graphql"
+	} else {
+		wsc.graphQLPath = "/swap/graphql"
+	}
+
 	wsc.logFields = log.Fields{
 		"sourceType": "websocketClient",
 		"envName":    envName,
@@ -98,6 +107,10 @@ func NewWebsocketClient(lg *log.Entry, envName, domainName, feedName string, sub
 		if err := wsc.setupTrades(); err != nil {
 			return nil, err
 		}
+	case feedName == "balances":
+		if err := wsc.setupBalances(); err != nil {
+			return nil, err
+		}
 	default:
 		return nil, fmt.Errorf("unsupported feed %s", feedName)
 	}
@@ -115,6 +128,8 @@ func (wsc *websocketClient) processMessage(wMessage wrappedReceivedMessage) {
 		wsc.parseAndOutputL2(wMessage)
 	case wsc.feedName == "trades":
 		wsc.parseAndOutputTrades(wMessage)
+	case wsc.feedName == "balances":
+		wsc.parseAndOutputBalances(wMessage)
 	}
 }
 

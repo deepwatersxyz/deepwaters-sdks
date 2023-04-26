@@ -36,7 +36,7 @@ type request struct {
 
 func (wsc *websocketClient) subscribe() error {
 
-	u := url.URL{Scheme: "wss", Host: wsc.domainName, Path: "/swap/graphql"}
+	u := url.URL{Scheme: "wss", Host: wsc.domainName, Path: wsc.graphQLPath}
 	h := http.Header{}
 	h.Set("Content-Type", "application/json")
 
