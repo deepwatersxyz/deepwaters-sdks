@@ -1,3 +1,7 @@
+// example of interacting with the REST API. See also:
+// https://rest.docs.api.deepwaters.xyz/
+// https://rest.docs.testnet.api.deepwaters.xyz/
+
 package main
 
 import (

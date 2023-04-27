@@ -1,3 +1,5 @@
+// check on-chain and off-chain balances, deposit, and withdraw
+
 package main
 
 import (

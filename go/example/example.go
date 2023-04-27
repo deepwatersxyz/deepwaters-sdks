@@ -1,4 +1,7 @@
-// example combining websocket subscriptions and REST
+// example combining websocket subscriptions, REST, and web3. See also:
+// ../graphql/example/example.go
+// ../rest/example/example.go
+// ../web3/example/example.go
 
 package main
 
