@@ -4,11 +4,6 @@ from secp256k1_utils import get_signature_hex_str
 def now_micros():
     return str(int(datetime.datetime.now().timestamp() * 1e6))
 
-def get_request_uri_and_url_from_extension(host_url, api_route, extension):
-    request_uri = api_route + extension
-    url = host_url + request_uri
-    return request_uri, url
-
 # some requests require authentication.
 # those that modify the customer state require that the next nonce value be submitted, as part of authentication.
 # for example, getting the API key status does not require nonce submission,

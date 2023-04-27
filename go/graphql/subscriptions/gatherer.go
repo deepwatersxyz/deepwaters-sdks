@@ -16,9 +16,10 @@ type Gatherer struct {
 	envName    string
 	domainName string
 
-	l3WebsocketClient     *websocketClient
-	l2WebsocketClient     *websocketClient
-	tradesWebsocketClient *websocketClient
+	l3WebsocketClient       *websocketClient
+	l2WebsocketClient       *websocketClient
+	tradesWebsocketClient   *websocketClient
+	balancesWebsocketClient *websocketClient
 }
 
 func NewGatherer(lg *log.Logger, envName, domainName string) *Gatherer {
@@ -87,6 +88,21 @@ func (g *Gatherer) SetTradesWebsocketClient(baseAssetID, quoteAssetID, customerA
 	return nil
 }
 
+func (g *Gatherer) SetBalancesWebsocketClient(customerAddress string) error { // more arguments are possible - see accounting.BalanceFilter
+
+	variables := make(map[string]interface{})
+	if customerAddress != "" {
+		variables["customerAddress"] = customerAddress
+	}
+
+	balancesWebsocketClient, err := NewWebsocketClient(g.lg, g.envName, g.domainName, "balances", variables)
+	if err != nil {
+		return err
+	}
+	g.balancesWebsocketClient = balancesWebsocketClient
+	return nil
+}
+
 func (g *Gatherer) handleL3Updates(haltC <-chan struct{}, doneC chan<- struct{}) {
 	for running := true; running; {
 		select {
@@ -138,6 +154,23 @@ func (g *Gatherer) handleTradeUpdates(haltC <-chan struct{}, doneC chan<- struct
 	close(doneC)
 }
 
+func (g *Gatherer) handleBalanceUpdates(haltC <-chan struct{}, doneC chan<- struct{}) {
+	for running := true; running; {
+		select {
+		case <-haltC:
+			running = false
+		case balance := <-g.balancesWebsocketClient.balancesOutputChannel:
+			balanceBytes, err := json.Marshal(balance)
+			if err != nil {
+				g.lg.Errorf("error: %s", err)
+			} else {
+				g.lg.Debugf("balance: %s", balanceBytes)
+			}
+		}
+	}
+	close(doneC)
+}
+
 func (g *Gatherer) RestartWebsocketClient(feedName string) {
 	if feedName == "L3" && g.l3WebsocketClient != nil {
 		g.l3WebsocketClient.restartRequiredChannel <- struct{}{}
@@ -149,6 +182,10 @@ func (g *Gatherer) RestartWebsocketClient(feedName string) {
 
 	if feedName == "trades" && g.tradesWebsocketClient != nil {
 		g.tradesWebsocketClient.restartRequiredChannel <- struct{}{}
+	}
+
+	if feedName == "balances" && g.balancesWebsocketClient != nil {
+		g.balancesWebsocketClient.restartRequiredChannel <- struct{}{}
 	}
 }
 
@@ -172,6 +209,11 @@ func (g *Gatherer) Run() {
 	if g.tradesWebsocketClient != nil {
 		go g.handleTradeUpdates(stopper.NewHaltC(), stopper.NewDoneC())
 		go g.tradesWebsocketClient.Run(stopper.NewHaltC(), stopper.NewDoneC())
+	}
+
+	if g.balancesWebsocketClient != nil {
+		go g.handleBalanceUpdates(stopper.NewHaltC(), stopper.NewDoneC())
+		go g.balancesWebsocketClient.Run(stopper.NewHaltC(), stopper.NewDoneC())
 	}
 
 	<-interrupt
