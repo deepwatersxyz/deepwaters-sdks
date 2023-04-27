@@ -108,8 +108,7 @@ func main() {
 		return
 	}
 
-	// these do not work on testnet, because of the nature of the testnet tokens
-
+	/* these do not work on testnet, because of the nature of the testnet tokens
 	// AVAX withdrawal
 	avaxWithdrawalAmountStr := ".01"
 	if err := web3.WithdrawNativeToken(lg, moveTokenInfo, avaxWithdrawalAmountStr); err != nil {
@@ -124,6 +123,7 @@ func main() {
 		lg.Errorf("%s, err")
 		return
 	}
+	*/
 
 	web3.CheckNativeAndWrappedNativeBalances(lg, restAPIInfo, customerAddress, connector, wavaxDetails)
 }
