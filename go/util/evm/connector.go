@@ -7,7 +7,6 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/ethereum/go-ethereum"
 	geth "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -252,7 +251,7 @@ func (c *connector) getAdjustedEstimatedGas(args SendArgs, data []byte) (*uint64
 }
 
 func (c *connector) getEstimatedGas(args SendArgs, data []byte) (*uint64, error) {
-	msg := ethereum.CallMsg{
+	msg := geth.CallMsg{
 		From:      args.Wallet.GetAddressBytes(),
 		To:        &args.Address,
 		Gas:       0,

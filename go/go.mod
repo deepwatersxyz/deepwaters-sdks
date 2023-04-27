@@ -6,7 +6,6 @@ require (
 	github.com/ethereum/go-ethereum v1.10.17
 	github.com/gorilla/websocket v1.4.2
 	github.com/sirupsen/logrus v1.2.0
-	golang.org/x/text v0.5.0
 )
 
 require (
@@ -28,6 +27,7 @@ require (
 	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/sys v0.5.0 // indirect
 	golang.org/x/term v0.1.0 // indirect
+	golang.org/x/text v0.5.0 // indirect
 	golang.org/x/time v0.1.0 // indirect
 	gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce // indirect
 )

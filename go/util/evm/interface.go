@@ -62,5 +62,3 @@ type Contract interface {
 	Call(ctx context.Context, block *uint64, from *string, f string, args ...interface{}) ([]byte, error)
 	Send(mode SendMode, from Wallet, to *string, value *big.Int, nonce *uint64, f *string, args ...interface{}) (*string, *types.Receipt, *uint64, error)
 }
-
-var ZeroAddress common.Address = common.HexToAddress("0x00000000000000000000000000000000")

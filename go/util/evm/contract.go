@@ -93,9 +93,10 @@ func (c *contract) Send(mode SendMode, from Wallet, to *string, value *big.Int, 
 	if err != nil {
 		return nil, nil, nil, err
 	}
+	/*
 	if hash == nil {
 		// dry mode
 		return nil, receipt, nil, nil
-	}
+	} */
 	return util.StrP(hash.Hex()), receipt, nonce, nil
 }

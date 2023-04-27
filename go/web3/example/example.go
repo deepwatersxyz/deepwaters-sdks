@@ -15,7 +15,6 @@ const (
 	chainID                = 43113
 	chainName              = "fuji"
 	rpcURL                 = "insert node URL here"
-	perSecRateLimit        = 32
 	maxGasPriceWeiStr      = "50000000000"
 	addEstimatedGasPercent = 30
 
@@ -43,17 +42,13 @@ func main() {
 	lg.SetOutput(os.Stdout)
 	lg.SetLevel(log.TraceLevel)
 
-	contractCfgs := []evm.ContractConfig{positionManagerConfig, wavaxConfig}
-	cfg, err := evm.NewEVMConnectorConfig(chainID, chainName, rpcURL, perSecRateLimit, maxGasPriceWeiStr, addEstimatedGasPercent, evm.GetFujiAVAX(), contractCfgs)
+	cfg, err := evm.NewConnectorConfig(chainID, chainName, rpcURL, maxGasPriceWeiStr, addEstimatedGasPercent, evm.GetFujiAVAX())
 	if err != nil {
 		lg.Errorf("%s", err)
 		return
 	}
-	connector, err := evm.NewEVMConnector(lg, cfg)
-	if err != nil {
-		lg.Errorf("%s", err)
-		return
-	}
+	connector := evm.NewConnector(lg, cfg)
+
 	if err := connector.Open(); err != nil {
 		lg.Errorf("%s", err)
 		return
@@ -65,7 +60,11 @@ func main() {
 	}
 
 	wavaxAssetID := asset.AssetID
-	wavaxContract := connector.GetContracts().GetContract(connector.GetConfig().ChainName, wavaxConfig.AddressHexStr)
+	wavaxContract, err := evm.NewContractFromConfig(wavaxConfig, connector)
+	if err != nil {
+		lg.Errorf("%s", err)
+		return
+	}
 	decimalsResult, err := wavaxContract.Call(context.Background(), nil, nil, "decimals")
 	if err != nil {
 		lg.Errorf("%+v", decimalsResult)
@@ -81,7 +80,11 @@ func main() {
 		return
 	}
 
-	posManContract := connector.GetContracts().GetContract(connector.GetConfig().ChainName, positionManagerConfig.AddressHexStr)
+	posManContract, err := evm.NewContractFromConfig(positionManagerConfig, connector)
+	if err != nil {
+		lg.Errorf("%s", err)
+		return
+	}
 
 	moveTokenInfo := web3.MoveTokenInfo{
 		SendMode:       evm.SendModeWaitForReceipt,
@@ -105,7 +108,7 @@ func main() {
 		return
 	}
 
-	/* these do not work on testnet, because of the nature of the testnet tokens
+	// these do not work on testnet, because of the nature of the testnet tokens
 
 	// AVAX withdrawal
 	avaxWithdrawalAmountStr := ".01"
@@ -121,7 +124,6 @@ func main() {
 		lg.Errorf("%s, err")
 		return
 	}
-	*/
 
 	web3.CheckNativeAndWrappedNativeBalances(lg, restAPIInfo, customerAddress, connector, wavaxDetails)
 }
