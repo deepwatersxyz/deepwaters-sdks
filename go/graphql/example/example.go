@@ -12,10 +12,11 @@ import (
 )
 
 const (
-	envName       = "testnet prod"
-	domainName    = "testnet.api.deepwaters.xyz"
-	baseAssetID   = "WBTC.GOERLI.5.TESTNET.PROD"
-	quoteAssetID  = "USDC.GOERLI.5.TESTNET.PROD"
+	envName         = "testnet prod"
+	domainName      = "testnet.api.deepwaters.xyz"
+	baseAssetID     = "WBTC.GOERLI.5.TESTNET.PROD"
+	quoteAssetID    = "USDC.GOERLI.5.TESTNET.PROD"
+	customerAddress = "0x85e7E8E942B8CA402826F8EA55d6a638248d98d0" // a deepwaters testnet bot
 )
 
 func main() {
@@ -27,6 +28,7 @@ func main() {
 	gatherer.SetL3WebsocketClient(baseAssetID, quoteAssetID, "")
 	gatherer.SetL2WebsocketClient(baseAssetID, quoteAssetID)
 	gatherer.SetTradesWebsocketClient("", "", "")
+	gatherer.SetBalancesWebsocketClient(customerAddress)
 
 	go func() { // demonstrates websocket client restarts
 		time.Sleep(10 * time.Second)

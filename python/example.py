@@ -55,6 +55,39 @@ response = r.json()
 print(response)
 print()
 
+# POST /deposit-instructions
+
+request_uri, url = get_request_uri_and_url_from_extension(host_url, api_route, 'deposit-instructions')
+
+deposit_request_payload = {'asset': base_asset_id, 'amount': '0.001'}
+
+headers = auth.get_authentication_headers(api_key, api_secret, 'POST', request_uri, nonce_d, deposit_request_payload)
+
+print('testing POST %s ... ' % url)
+
+r = requests.post(url, headers=headers, json=deposit_request_payload)
+response = r.json()
+
+print(response)
+
+print('... test complete')
+
+# POST /withdrawal-instructions
+
+request_uri, url = get_request_uri_and_url_from_extension(host_url, api_route, 'withdrawal-instructions')
+
+withdrawal_request_payload = {'asset': base_asset_id, 'amount': '.001'}
+
+headers = auth.get_authentication_headers(api_key, api_secret, 'POST', request_uri, nonce_d, withdrawal_request_payload)
+
+print('testing POST %s ... ' % url)
+
+r = requests.post(url, headers=headers, json=withdrawal_request_payload)
+response = r.json()
+
+print(response)
+print('... test complete')
+
 # GET /pairs
 
 request_uri, url = get_request_uri_and_url_from_extension(host_url, api_route, 'pairs')
